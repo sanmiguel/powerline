@@ -163,8 +163,9 @@ try:
 			'''
 			repo = git.Repository(self.directory)
 			branch = repo.lookup_branch(repo.head.shorthand)
-			upstream = branch.upstream
-			return ( self.aheadby(repo, branch, upstream), self.aheadby(repo, upstream, branch) )
+			if branch.upstream is not None:
+				upstream = branch.upstream
+				return ( self.aheadby(repo, branch, upstream), self.aheadby(repo, upstream, branch) )
 
 except ImportError:
 	class Repository(GitRepository):

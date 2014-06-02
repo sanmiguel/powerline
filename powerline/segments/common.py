@@ -61,19 +61,24 @@ def divergence(pl, segment_info):
 	name = segment_info['getcwd']()
 	repo = guess(path=name)
 	if repo is not None:
-		( ahead, behind ) = repo.divergence()
-		if ahead and behind:
-			(content, hlgroup) = ( '⬍', 'divergence_both' )
-		elif ahead:
-			(content, hlgroup) = ( '⬆', 'divergence_ahead' )
-		elif behind:
-			(content, hlgroup) = ( '⬇', 'divergence_behind' )
-		else:
-			(content, hlgroup) = ( '-', 'divergence_none' )
-		return [{
-			'contents': content,
-			'highlight_group': hlgroup
-		}]
+		div = repo.divergence()
+		if div is not None:
+			( ahead, behind ) = div
+			if ahead and behind:
+				return [{
+					'contents': '⬍',
+					'highlight_group': 'divergence_both'
+				}]
+			elif ahead:
+				return [{
+					'contents': '⬆',
+					'highlight_group': 'divergence_ahead'
+				}]
+			elif behind:
+				return [{
+					'contents': '⬇',
+					'highlight_group': 'divergence_behind'
+				}]
 
 
 @requires_filesystem_watcher
