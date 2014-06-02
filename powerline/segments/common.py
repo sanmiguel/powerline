@@ -52,6 +52,30 @@ def hostname(pl, segment_info, only_if_ssh=False, exclude_domain=False):
 	return socket.gethostname()
 
 
+@requires_segment_info
+def divergence(pl, segment_info):
+	'''Return the divergence from the remote.
+
+	Highlight groups used: ``divergence_none``, ``divergence_ahead``, ``divergence_behind``, ``divergence_both``
+	'''
+	name = segment_info['getcwd']()
+	repo = guess(path=name)
+	if repo is not None:
+		( ahead, behind ) = repo.divergence()
+		if ahead and behind:
+			(content, hlgroup) = ( '⬍', 'divergence_both' )
+		elif ahead:
+			(content, hlgroup) = ( '⬆', 'divergence_ahead' )
+		elif behind:
+			(content, hlgroup) = ( '⬇', 'divergence_behind' )
+		else:
+			(content, hlgroup) = ( '-', 'divergence_none' )
+		return [{
+			'contents': content,
+			'highlight_group': hlgroup
+		}]
+
+
 @requires_filesystem_watcher
 @requires_segment_info
 def branch(pl, segment_info, create_watcher, status_colors=False):

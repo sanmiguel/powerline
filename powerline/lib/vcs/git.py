@@ -150,6 +150,22 @@ try:
 						index_column = 'I'
 				r = wt_column + index_column + untracked_column
 				return r if r != '   ' else None
+
+		def aheadby(self, repo, us, them):
+			usw = repo.walk(us.target, git.GIT_SORT_TOPOLOGICAL)
+			themw = repo.walk(them.target, git.GIT_SORT_TOPOLOGICAL)
+			for c in themw:
+				usw.hide(c.id)
+			return sum(1 for c in usw)
+
+		def divergence(self):
+			'''Return number of commits divergence (if any) from the upstream
+			'''
+			repo = git.Repository(self.directory)
+			branch = repo.lookup_branch(repo.head.shorthand)
+			upstream = branch.upstream
+			return ( self.aheadby(repo, branch, upstream), self.aheadby(repo, upstream, branch) )
+
 except ImportError:
 	class Repository(GitRepository):
 		@staticmethod
@@ -187,3 +203,7 @@ except ImportError:
 
 				r = wt_column + index_column + untracked_column
 				return r if r != '   ' else None
+
+		def divergence(self):
+			# Not convinced we can tell what 'divergence' means in this case
+			return (0, 0)
