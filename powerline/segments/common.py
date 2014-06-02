@@ -53,6 +53,20 @@ def hostname(pl, segment_info, only_if_ssh=False, exclude_domain=False):
 
 
 @requires_segment_info
+def kerl(pl, segment_info):
+	'''Return the in-use erlang installation (via kerl)
+
+	Highlight_groups used: ```kerl_active```
+	'''
+	kerl_active = run_cmd(pl, ['kerl', 'prompt']) or None
+	if not kerl_active: return None
+	return [{
+		'contents': '%s' % kerl_active,
+		'highlight_group': 'kerl_active'
+	}]
+
+
+@requires_segment_info
 def divergence(pl, segment_info):
 	'''Return the divergence from the remote.
 
