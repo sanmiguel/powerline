@@ -80,7 +80,7 @@ def divergence(pl, segment_info):
 			( ahead, behind ) = div
 			if ahead and behind:
 				return [{
-					'contents': '⬍',
+					'contents': '⇅',
 					'highlight_group': 'divergence_both'
 				}]
 			elif ahead:
