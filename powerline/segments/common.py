@@ -136,14 +136,14 @@ def vcs_info(pl, segment_info, create_watcher, included_info=['working_tree:clea
 	repo = guess(path=name, create_watcher=create_watcher)
 	if repo is not None:
 		status = repo.status()
+		if 'working_tree:clean' in status and 'index:clean' in status:
+			status.append('clean')
+
 		def vcs_content(thing, thingicon):
 			return {
 				'contents': thingicon,
 				'highlight_group': ['vcs_status:%s' % thing, 'vcs_status' ]
 				}
-
-		if status is None:
-			status = ['clean', 'index:clean', 'working_tree:clean']
 
 		icons = dict(base_icons.items() + custom_icons.items())
 		# only attempt to include configured items, for which there is an icon
