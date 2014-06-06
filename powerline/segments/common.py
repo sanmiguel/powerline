@@ -106,6 +106,7 @@ def vcs_info(pl, segment_info, create_watcher, included_info=['working_tree:clea
 
 	Highlight groups used:
 		``vcs_status``,
+		``vcs_status:clean``,
 		``vcs_status:working_tree:clean``,
 		``vcs_status:working_tree:dirty``,
 		``vcs_status:working_tree:new``,
@@ -119,11 +120,12 @@ def vcs_info(pl, segment_info, create_watcher, included_info=['working_tree:clea
 	'''
 	# Hattip to https://github.com/jeremyFreeAgent/oh-my-zsh-powerline-theme for the icons here.
 	base_icons = {
+			'clean': '✔',
 			'working_tree:clean': '✔',
 			'working_tree:dirty': '✘',
 			'working_tree:new': '✭',
-			'working_tree:modified': None,
-			'working_tree:deleted': None,
+			'working_tree:modified': '✹',
+			'working_tree:deleted': '✖',
 			'index:clean': '✔',
 			'index:dirty': '✘',
 			'index:new': '✚',
@@ -141,7 +143,7 @@ def vcs_info(pl, segment_info, create_watcher, included_info=['working_tree:clea
 				}
 
 		if status is None:
-			status = ['index:clean', 'working_tree:clean']
+			status = ['clean', 'index:clean', 'working_tree:clean']
 
 		icons = dict(base_icons.items() + custom_icons.items())
 		# only attempt to include configured items, for which there is an icon
