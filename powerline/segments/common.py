@@ -94,6 +94,52 @@ def divergence(pl, segment_info):
 					'highlight_group': 'divergence_behind'
 				}]
 
+@requires_segment_info
+def vcs_info(pl, segment_info, included_info=['working_tree:clean', 'working_tree:dirty'], custom_icons={}):
+	'''Return the vcs info of the current directory.
+	:param list included_info:
+		list of fields (in order) to include in the prompt. Default: ['working_tree:clean', 'working_tree:dirty'].
+	:param dict custom_icons:
+		mapping of info item -> icon to use. Default: {...}
+
+	Highlight groups used:
+		``repo_vcs_status``, ``repo_vcs_status:working_tree:clean``, ``repo_vcs_status:working_tree:dirty``,
+		``repo_vcs_status:working_tree:new``, ``repo_vcs_status:working_tree:modified``, ``repo_vcs_status:working_tree:deleted``,
+		``repo_vcs_status:index:clean``, ``repo_vcs_status:index:dirty``, ``repo_vcs_status:index:new``,
+		``repo_vcs_status:index:modified``, ``repo_vcs_status:index:deleted``
+	'''
+	# Hattip to https://github.com/jeremyFreeAgent/oh-my-zsh-powerline-theme for the icons here.
+	base_icons = {
+			'working_tree:clean': '✔',
+			'working_tree:dirty': '✘',
+			'working_tree:new': '✭',
+			'working_tree:modified': None,
+			'working_tree:deleted': None,
+			'index:clean': '✔',
+			'index:dirty': '✘',
+			'index:new': '✚',
+			'index:modified': '✹',
+			'index:deleted': '✖'
+			}
+	name = segment_info['getcwd']()
+	repo = guess(path=name)
+	if repo is not None:
+		status = repo.status()
+		def vcs_content(thing, thingicon):
+			return {
+				'contents': thingicon,
+				'highlight_group': ['repo_vcs_status:%s' % thing, 'repo_vcs_status' ]
+				}
+
+		if status is None:
+			status = ['index:clean', 'working_tree:clean']
+
+		icons = dict(base_icons.items() + custom_icons.items())
+		# only attempt to include configured items, for which there is an icon
+		ret = [ vcs_content(x, icons[x]) for x in included_info if x in status and icons[x] ]
+		if ret is not []:
+			return ret
+
 
 @requires_filesystem_watcher
 @requires_segment_info

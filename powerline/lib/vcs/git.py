@@ -5,6 +5,7 @@ from __future__ import (unicode_literals, absolute_import, print_function)
 import os
 import sys
 import re
+import operator
 
 from powerline.lib.vcs import get_branch_name, get_file_status
 from powerline.lib.shell import readlines
@@ -131,25 +132,29 @@ try:
 
 					return index_status + wt_status
 			else:
-				wt_column = ' '
-				index_column = ' '
-				untracked_column = ' '
-				for status in git.Repository(directory).status().values():
-					if status & git.GIT_STATUS_WT_NEW:
-						untracked_column = 'U'
-						continue
+				raw_status = git.Repository(directory).status().values()
+				repo_status = reduce(operator.or_, raw_status, 0)
 
-					if status & (git.GIT_STATUS_WT_DELETED | git.GIT_STATUS_WT_MODIFIED):
-						wt_column = 'D'
+				def check(mask, value):
+					return (value & mask == mask)
 
-					if status & (
-						git.GIT_STATUS_INDEX_NEW
-						| git.GIT_STATUS_INDEX_MODIFIED
-						| git.GIT_STATUS_INDEX_DELETED
-					):
-						index_column = 'I'
-				r = wt_column + index_column + untracked_column
-				return r if r != '   ' else None
+				def checkall(ref, tag, flags):
+					flagtypes  = ['new', 'modified', 'deleted']
+					ret = ['%s:%s' % (tag, ftype) for (ftype, f) in zip(flagtypes, flags) if check(f, ref)]
+					if ret == []:
+						return ['%s:%s' % (tag, 'clean')]
+
+					return ret + ['%s:%s' % (tag, 'dirty')]
+
+				wt_status  = checkall(repo_status, 'working_tree', [
+					git.GIT_STATUS_WT_NEW,
+					git.GIT_STATUS_WT_MODIFIED,
+					git.GIT_STATUS_WT_DELETED])
+				idx_status = checkall(repo_status, 'index', [
+					git.GIT_STATUS_INDEX_NEW,
+					git.GIT_STATUS_INDEX_MODIFIED,
+					git.GIT_STATUS_INDEX_DELETED])
+				return idx_status + wt_status
 
 		def aheadby(self, repo, us, them):
 			usw = repo.walk(us.target, git.GIT_SORT_TOPOLOGICAL)
