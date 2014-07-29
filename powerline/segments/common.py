@@ -66,14 +66,15 @@ def kerl(pl, segment_info):
 	}]
 
 
+@requires_filesystem_watcher
 @requires_segment_info
-def divergence(pl, segment_info):
+def divergence(pl, segment_info, create_watcher):
 	'''Return the divergence from the remote.
 
 	Highlight groups used: ``divergence_none``, ``divergence_ahead``, ``divergence_behind``, ``divergence_both``
 	'''
 	name = segment_info['getcwd']()
-	repo = guess(path=name)
+	repo = guess(path=name, create_watcher=create_watcher)
 	if repo is not None:
 		div = repo.divergence()
 		if div is not None:
@@ -94,8 +95,9 @@ def divergence(pl, segment_info):
 					'highlight_group': 'divergence_behind'
 				}]
 
+@requires_filesystem_watcher
 @requires_segment_info
-def vcs_info(pl, segment_info, included_info=['working_tree:clean', 'working_tree:dirty'], custom_icons={}):
+def vcs_info(pl, segment_info, create_watcher, included_info=['working_tree:clean', 'working_tree:dirty'], custom_icons={}):
 	'''Return the vcs info of the current directory.
 	:param list included_info:
 		list of fields (in order) to include in the prompt. Default: ['working_tree:clean', 'working_tree:dirty'].
@@ -122,7 +124,7 @@ def vcs_info(pl, segment_info, included_info=['working_tree:clean', 'working_tre
 			'index:deleted': '✖'
 			}
 	name = segment_info['getcwd']()
-	repo = guess(path=name)
+	repo = guess(path=name, create_watcher=create_watcher)
 	if repo is not None:
 		status = repo.status()
 		def vcs_content(thing, thingicon):
