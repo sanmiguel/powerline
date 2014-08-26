@@ -59,11 +59,14 @@ def kerl(pl, segment_info):
 	Highlight_groups used: ``kerl_active``.
 	'''
 	kerl_active = run_cmd(pl, ['kerl', 'prompt']) or None
-	if not kerl_active: return None
+	if not kerl_active:
+		return None
+
 	return [{
 		'contents': '%s' % kerl_active,
 		'highlight_group': 'kerl_active'
 	}]
+
 
 @requires_filesystem_watcher
 @requires_segment_info
