@@ -7,7 +7,24 @@
 		"exit_success":     { "fg": "white", "bg": "darkestgreen", "attr": [] },
 		"environment":      { "fg": "white", "bg": "darkestgreen", "attr": [] },
 		"mode":             { "fg": "darkestgreen", "bg": "brightgreen", "attr": ["bold"] },
-		"attached_clients": { "fg": "white", "bg": "darkestgreen", "attr": [] }
+		"attached_clients": { "fg": "white", "bg": "darkestgreen", "attr": [] },
+		"kerl_active":      { "fg": "white", "bg": "darkestred", "attr": [] },
+		"divergence_none":      { "fg": "gray2", "bg": "darkcyan", "attr": []},
+		"divergence_ahead":     { "fg": "oldlace", "bg": "darkgreen", "attr": []},
+		"divergence_behind":    { "fg": "oldlace", "bg": "darkcyan", "attr": []},
+		"divergence_both":      { "fg": "oldlace", "bg": "darkred", "attr": []},
+		"vcs_status":       { "fg": "white", "bg": "gray4", "attr": [] },
+		"vcs_status:clean": { "fg": "white", "bg": "gray4", "attr": [] },
+		"vcs_status:working_tree:clean":    { "fg": "white", "bg": "gray4", "attr": [] },
+		"vcs_status:working_tree:dirty":    { "fg": "green", "bg": "gray4", "attr": [] },
+		"vcs_status:working_tree:new":      { "fg": "yellow", "bg": "gray4", "attr": [] },
+		"vcs_status:working_tree:modified": { "fg": "yellow", "bg": "gray4", "attr": [] },
+		"vcs_status:working_tree:deleted":  { "fg": "red", "bg": "gray4", "attr": [] },
+		"vcs_status:index:clean":    { "fg": "white", "bg": "gray4", "attr": [] },
+		"vcs_status:index:dirty":    { "fg": "red", "bg": "gray4", "attr": [] },
+		"vcs_status:index:new":      { "fg": "brightyellow", "bg": "gray4", "attr": [] },
+		"vcs_status:index:modified": { "fg": "brightyellow", "bg": "gray4", "attr": [] },
+		"vcs_status:index:deleted" : { "fg": "brightred", "bg": "gray4", "attr": [] }
 	},
 	"mode_translations": {
 		"vicmd": {

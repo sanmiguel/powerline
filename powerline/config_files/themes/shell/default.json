@@ -24,6 +24,20 @@
 				"priority": 10
 			},
 			{
+				"name": "vcs_info",
+				"args": {
+					"included_info": [
+						"clean",
+						"working_tree:new",
+						"working_tree:modified",
+						"working_tree:deleted",
+						"index:new",
+						"index:modified",
+						"index:deleted"
+					]
+				}
+			},
+			{
 				"module": "powerline.segments.shell",
 				"name": "jobnum",
 				"priority": 20
@@ -36,8 +50,16 @@
 				"priority": 10
 			},
 			{
+				"name": "divergence",
+				"priority": 10
+			},
+			{
 				"name": "branch",
 				"priority": 40
+			},
+			{
+				"name": "kerl",
+				"priority": 50
 			}
 		]
 	}
