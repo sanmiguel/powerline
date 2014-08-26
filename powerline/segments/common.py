@@ -105,10 +105,17 @@ def vcs_info(pl, segment_info, create_watcher, included_info=['working_tree:clea
 		mapping of info item -> icon to use. Default: {...}
 
 	Highlight groups used:
-		``repo_vcs_status``, ``repo_vcs_status:working_tree:clean``, ``repo_vcs_status:working_tree:dirty``,
-		``repo_vcs_status:working_tree:new``, ``repo_vcs_status:working_tree:modified``, ``repo_vcs_status:working_tree:deleted``,
-		``repo_vcs_status:index:clean``, ``repo_vcs_status:index:dirty``, ``repo_vcs_status:index:new``,
-		``repo_vcs_status:index:modified``, ``repo_vcs_status:index:deleted``
+		``vcs_status``,
+		``vcs_status:working_tree:clean``,
+		``vcs_status:working_tree:dirty``,
+		``vcs_status:working_tree:new``,
+		``vcs_status:working_tree:modified``,
+		``vcs_status:working_tree:deleted``,
+		``vcs_status:index:clean``,
+		``vcs_status:index:dirty``,
+		``vcs_status:index:new``,
+		``vcs_status:index:modified``,
+		``vcs_status:index:deleted``
 	'''
 	# Hattip to https://github.com/jeremyFreeAgent/oh-my-zsh-powerline-theme for the icons here.
 	base_icons = {
@@ -130,7 +137,7 @@ def vcs_info(pl, segment_info, create_watcher, included_info=['working_tree:clea
 		def vcs_content(thing, thingicon):
 			return {
 				'contents': thingicon,
-				'highlight_group': ['repo_vcs_status:%s' % thing, 'repo_vcs_status' ]
+				'highlight_group': ['vcs_status:%s' % thing, 'vcs_status' ]
 				}
 
 		if status is None:
