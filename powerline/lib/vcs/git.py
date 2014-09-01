@@ -6,6 +6,7 @@ import os
 import sys
 import re
 import operator
+import subprocess
 
 from powerline.lib.vcs import get_branch_name, get_file_status
 from powerline.lib.shell import readlines
@@ -156,21 +157,22 @@ try:
 					git.GIT_STATUS_INDEX_DELETED])
 				return idx_status + wt_status
 
-		def aheadby(self, repo, us, them):
-			usw = repo.walk(us.target, git.GIT_SORT_TOPOLOGICAL)
-			themw = repo.walk(them.target, git.GIT_SORT_TOPOLOGICAL)
-			for c in themw:
-				usw.hide(c.id)
-			return sum(1 for c in usw)
+		def aheadby_external(self, us, them):
+			cmd = "git log --oneline {0}..{1}".format(us, them)
+			process = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
+			output = process.stdout.read()
+			lines = output.splitlines()
+			return len(lines)
 
 		def divergence(self):
 			'''Return number of commits divergence (if any) from the upstream
 			'''
 			repo = git.Repository(self.directory)
+			# TODO This might not be a branch...
 			branch = repo.lookup_branch(repo.head.shorthand)
-			if branch.upstream is not None:
-				upstream = branch.upstream
-				return ( self.aheadby(repo, branch, upstream), self.aheadby(repo, upstream, branch) )
+			if branch is not None:
+				upstream = "{0}@{{u}}".format(branch.shorthand)
+				return ( self.aheadby_external(branch.shorthand, upstream), self.aheadby_external(upstream, branch.shorthand) )
 
 except ImportError:
 	class Repository(GitRepository):
