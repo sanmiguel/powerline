@@ -22,6 +22,20 @@
 				"priority": 10
 			},
 			{
+				"function": "vcs_info",
+				"args": {
+					"included_info": [
+						"clean",
+						"working_tree:new",
+						"working_tree:modified",
+						"working_tree:deleted",
+						"index:new",
+						"index:modified",
+						"index:deleted"
+					]
+				}
+			},
+			{
 				"function": "powerline.segments.shell.jobnum",
 				"priority": 20
 			}
@@ -32,8 +46,16 @@
 				"priority": 10
 			},
 			{
+				"function": "divergence",
+				"priority": 10
+			},
+			{
 				"function": "branch",
 				"priority": 40
+			},
+			{
+				"name": "kerl",
+				"priority": 50
 			}
 		]
 	}

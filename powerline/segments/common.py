@@ -51,6 +51,106 @@ def hostname(pl, segment_info, only_if_ssh=False, exclude_domain=False):
 	return socket.gethostname()
 
 
+@requires_segment_info
+def kerl(pl, segment_info):
+	'''Return the in-use erlang installation (via kerl)
+
+	Highlight_groups used: ```kerl_active```
+	'''
+	kerl_active = run_cmd(pl, ['kerl', 'prompt']) or None
+	if not kerl_active: return None
+	return [{
+		'contents': '%s' % kerl_active,
+		'highlight_group': 'kerl_active'
+	}]
+
+
+@requires_filesystem_watcher
+@requires_segment_info
+def divergence(pl, segment_info, create_watcher):
+	'''Return the divergence from the remote.
+
+	Highlight groups used: ``divergence_none``, ``divergence_ahead``, ``divergence_behind``, ``divergence_both``
+	'''
+	name = segment_info['getcwd']()
+	repo = guess(path=name, create_watcher=create_watcher)
+	if repo is not None:
+		div = repo.divergence()
+		if div is not None:
+			( ahead, behind ) = div
+			if ahead and behind:
+				return [{
+					'contents': '⇅',
+					'highlight_group': 'divergence_both'
+				}]
+			elif ahead:
+				return [{
+					'contents': '⬆',
+					'highlight_group': 'divergence_ahead'
+				}]
+			elif behind:
+				return [{
+					'contents': '⬇',
+					'highlight_group': 'divergence_behind'
+				}]
+
+@requires_filesystem_watcher
+@requires_segment_info
+def vcs_info(pl, segment_info, create_watcher, included_info=['working_tree:clean', 'working_tree:dirty'], custom_icons={}):
+	'''Return the vcs info of the current directory.
+	:param list included_info:
+		list of fields (in order) to include in the prompt. Default: ['working_tree:clean', 'working_tree:dirty'].
+	:param dict custom_icons:
+		mapping of info item -> icon to use. Default: {...}
+
+	Highlight groups used:
+		``vcs_status``,
+		``vcs_status:clean``,
+		``vcs_status:working_tree:clean``,
+		``vcs_status:working_tree:dirty``,
+		``vcs_status:working_tree:new``,
+		``vcs_status:working_tree:modified``,
+		``vcs_status:working_tree:deleted``,
+		``vcs_status:index:clean``,
+		``vcs_status:index:dirty``,
+		``vcs_status:index:new``,
+		``vcs_status:index:modified``,
+		``vcs_status:index:deleted``
+	'''
+	# Hattip to https://github.com/jeremyFreeAgent/oh-my-zsh-powerline-theme for the icons here.
+	base_icons = {
+			'clean': '✔',
+			'working_tree:clean': '✔',
+			'working_tree:dirty': '✘',
+			'working_tree:new': '✭',
+			'working_tree:modified': '✹',
+			'working_tree:deleted': '✖',
+			'index:clean': '✔',
+			'index:dirty': '✘',
+			'index:new': '✚',
+			'index:modified': '✹',
+			'index:deleted': '✖'
+			}
+	name = segment_info['getcwd']()
+	repo = guess(path=name, create_watcher=create_watcher)
+	if repo is not None:
+		status = repo.status()
+		if 'working_tree:clean' in status and 'index:clean' in status:
+			status.append('clean')
+
+		def vcs_content(thing, thingicon):
+			return {
+				'contents': thingicon,
+				'highlight_group': ['vcs_status:%s' % thing, 'vcs_status' ]
+				}
+
+		icons = dict(base_icons.items() + custom_icons.items())
+		# only attempt to include configured items, for which there is an icon
+		ret = [ vcs_content(x, icons[x]) for x in included_info if x in status and icons[x] ]
+		if ret is not []:
+			return ret
+
+
 @requires_filesystem_watcher
 @requires_segment_info
 def branch(pl, segment_info, create_watcher, status_colors=False):

@@ -4,6 +4,8 @@ from __future__ import (unicode_literals, division, absolute_import, print_funct
 import os
 import sys
 import re
+import operator
+import subprocess
 
 from powerline.lib.vcs import get_branch_name, get_file_status
 from powerline.lib.shell import readlines
@@ -130,25 +132,47 @@ try:
 
 					return index_status + wt_status
 			else:
-				wt_column = ' '
-				index_column = ' '
-				untracked_column = ' '
-				for status in git.Repository(directory).status().values():
-					if status & git.GIT_STATUS_WT_NEW:
-						untracked_column = 'U'
-						continue
+				raw_status = git.Repository(directory).status().values()
+				repo_status = reduce(operator.or_, raw_status, 0)
 
-					if status & (git.GIT_STATUS_WT_DELETED | git.GIT_STATUS_WT_MODIFIED):
-						wt_column = 'D'
+				def check(mask, value):
+					return (value & mask == mask)
 
-					if status & (
-						git.GIT_STATUS_INDEX_NEW
-						| git.GIT_STATUS_INDEX_MODIFIED
-						| git.GIT_STATUS_INDEX_DELETED
-					):
-						index_column = 'I'
-				r = wt_column + index_column + untracked_column
-				return r if r != '   ' else None
+				def checkall(ref, tag, flags):
+					flagtypes  = ['new', 'modified', 'deleted']
+					ret = ['%s:%s' % (tag, ftype) for (ftype, f) in zip(flagtypes, flags) if check(f, ref)]
+					if ret == []:
+						return ['%s:%s' % (tag, 'clean')]
+
+					return ret + ['%s:%s' % (tag, 'dirty')]
+
+				wt_status  = checkall(repo_status, 'working_tree', [
+					git.GIT_STATUS_WT_NEW,
+					git.GIT_STATUS_WT_MODIFIED,
+					git.GIT_STATUS_WT_DELETED])
+				idx_status = checkall(repo_status, 'index', [
+					git.GIT_STATUS_INDEX_NEW,
+					git.GIT_STATUS_INDEX_MODIFIED,
+					git.GIT_STATUS_INDEX_DELETED])
+				return idx_status + wt_status
+
+		def aheadby_external(self, us, them):
+			cmd = "git log --oneline {0}..{1}".format(us, them)
+			process = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
+			output = process.stdout.read()
+			lines = output.splitlines()
+			return len(lines)
+
+		def divergence(self):
+			'''Return number of commits divergence (if any) from the upstream
+			'''
+			repo = git.Repository(self.directory)
+			# TODO This might not be a branch...
+			branch = repo.lookup_branch(repo.head.shorthand)
+			if branch is not None:
+				upstream = "{0}@{{u}}".format(branch.shorthand)
+				return ( self.aheadby_external(branch.shorthand, upstream), self.aheadby_external(upstream, branch.shorthand) )
+
 except ImportError:
 	class Repository(GitRepository):
 		@staticmethod
@@ -186,3 +210,7 @@ except ImportError:
 
 				r = wt_column + index_column + untracked_column
 				return r if r != '   ' else None
+
+		def divergence(self):
+			# Not convinced we can tell what 'divergence' means in this case
+			return (0, 0)
