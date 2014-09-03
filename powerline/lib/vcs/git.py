@@ -157,7 +157,7 @@ try:
 				return idx_status + wt_status
 
 		def aheadby_external(self, us, them):
-			cmd = "git log --oneline {0}..{1}".format(us, them)
+			cmd = "git log --oneline {1}..{0}".format(us, them)
 			process = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, close_fds=True)
 			output = process.stdout.read()
 			lines = output.splitlines()
